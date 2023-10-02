@@ -4,7 +4,6 @@ import 'dart:io';
 import 'package:args/args.dart';
 import 'package:logging/logging.dart';
 import 'package:path/path.dart' as path;
-import 'package:t_stats/t_stats.dart';
 import 'package:timeline_compare/timeline_summary.dart';
 
 Future<int> main(
@@ -31,7 +30,7 @@ Future<int> main(
     print('Merges two or more timeline summaries files.\n'
         '\n'
         'Usage:\n'
-        '\tbenchcompare baseline.benchmark improved.benchmark\n'
+        '\tmerge_timeline_summaries run_1.timeline_summary.json run_2.timeline_summary.json\n'
         '\n');
     print(parser.usage);
     return 2;
@@ -70,24 +69,8 @@ Future<int> main(
   final mergedSummaryName = "${summaries.first.label}_merged";
   final mergedSummary = TimelineSummary(
     label: mergedSummaryName,
-    buildTime: FrameStats(
-      averageFrameTimeMs: Statistic.from(summaries.map((e) => e.buildTime.averageFrameTimeMs).toList()).mean.toDouble(),
-      percentile90FrameTimeMs:
-          Statistic.from(summaries.map((e) => e.buildTime.percentile90FrameTimeMs).toList()).mean.toDouble(),
-      percentile99FrameTimeMs:
-          Statistic.from(summaries.map((e) => e.buildTime.percentile99FrameTimeMs).toList()).mean.toDouble(),
-      worstFrameTimeMs: Statistic.from(summaries.map((e) => e.buildTime.worstFrameTimeMs).toList()).mean.toDouble(),
-    ),
-    rasterizerTime: FrameStats(
-      averageFrameTimeMs:
-          Statistic.from(summaries.map((e) => e.rasterizerTime.averageFrameTimeMs).toList()).mean.toDouble(),
-      percentile90FrameTimeMs:
-          Statistic.from(summaries.map((e) => e.rasterizerTime.percentile90FrameTimeMs).toList()).mean.toDouble(),
-      percentile99FrameTimeMs:
-          Statistic.from(summaries.map((e) => e.rasterizerTime.percentile99FrameTimeMs).toList()).mean.toDouble(),
-      worstFrameTimeMs:
-          Statistic.from(summaries.map((e) => e.rasterizerTime.worstFrameTimeMs).toList()).mean.toDouble(),
-    ),
+    buildTime: summaries.map((e) => e.buildTime).toList().mean(),
+    rasterizerTime: summaries.map((e) => e.buildTime).toList().mean(),
   );
 
   final mergedSummaryFile = path.setExtension(mergedSummaryName, '.json');

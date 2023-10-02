@@ -1,5 +1,7 @@
 import 'dart:convert';
 
+import 'package:t_stats/t_stats.dart';
+
 class TimelineSummary {
   final String label;
   final FrameStats buildTime;
@@ -62,3 +64,14 @@ class FrameStats {
 }
 
 enum FrameStatType { build, rasterizer }
+
+extension FrameStatsStatistics on List<FrameStats> {
+  FrameStats mean() {
+    return FrameStats(
+      averageFrameTimeMs: Statistic.from(map((e) => e.averageFrameTimeMs).toList()).mean.toDouble(),
+      percentile90FrameTimeMs: Statistic.from(map((e) => e.percentile90FrameTimeMs).toList()).mean.toDouble(),
+      percentile99FrameTimeMs: Statistic.from(map((e) => e.percentile99FrameTimeMs).toList()).mean.toDouble(),
+      worstFrameTimeMs: Statistic.from(map((e) => e.worstFrameTimeMs).toList()).mean.toDouble(),
+    );
+  }
+}
