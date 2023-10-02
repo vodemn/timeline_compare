@@ -6,11 +6,7 @@ import 'package:logging/logging.dart';
 import 'package:path/path.dart' as path;
 import 'package:timeline_compare/timeline_summary.dart';
 
-Future<int> main(
-    {List<String> args = const [
-      "/Users/vodemn/Documents/GitHub/m3_lightmeter/build/toggle_iso_picker_baseline_2023-10-02T13-33-18.946216.timeline_summary.json",
-      "/Users/vodemn/Documents/GitHub/m3_lightmeter/build/toggle_iso_picker_baseline_2023-10-02T13-33-33.662261.timeline_summary.json"
-    ]}) async {
+Future<int> main(List<String> args) async {
   final parser = ArgParser();
   parser.addFlag('help', abbr: 'h', help: 'Show help.', defaultsTo: false);
   parser.addFlag('verbose', abbr: 'v', help: 'Verbose output', defaultsTo: false);
