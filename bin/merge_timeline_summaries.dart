@@ -9,7 +9,8 @@ import 'package:timeline_compare/timeline_summary.dart';
 Future<int> main(List<String> args) async {
   final parser = ArgParser();
   parser.addFlag('help', abbr: 'h', help: 'Show help.', defaultsTo: false);
-  parser.addFlag('verbose', abbr: 'v', help: 'Verbose output', defaultsTo: false);
+  parser.addFlag('verbose', abbr: 'v', help: 'Verbose output.', defaultsTo: false);
+  parser.addFlag('delete-sources', abbr: 'D', help: 'Delete source files.', defaultsTo: false);
   var argResults = parser.parse(args);
 
   if (argResults['verbose']) {
@@ -45,6 +46,10 @@ Future<int> main(List<String> args) async {
       log.fine('Finished reading $file');
       lastModified = (await file.lastModified()).toUtc();
       log.finer('Finished getting last modified: $lastModified');
+      if (argResults['delete-sources']) {
+        file.deleteSync();
+        log.info('Deleted $file');
+      }
     } on FileSystemException catch (e) {
       stderr.writeln('ERROR: Could not read $filename');
       stderr.writeln('$e');
