@@ -1,0 +1,110 @@
+import 'dart:convert';
+import 'dart:io';
+
+import 'package:args/args.dart';
+import 'package:logging/logging.dart';
+import 'package:path/path.dart' as path;
+import 'package:t_stats/t_stats.dart';
+import 'package:timeline_compare/timeline_summary.dart';
+
+Future<int> main(
+    {List<String> args = const [
+      "/Users/vodemn/Documents/GitHub/m3_lightmeter/build/toggle_iso_picker_baseline_2023-10-02T13-33-18.946216.timeline_summary.json",
+      "/Users/vodemn/Documents/GitHub/m3_lightmeter/build/toggle_iso_picker_baseline_2023-10-02T13-33-33.662261.timeline_summary.json"
+    ]}) async {
+  final parser = ArgParser();
+  parser.addFlag('help', abbr: 'h', help: 'Show help.', defaultsTo: false);
+  parser.addFlag('verbose', abbr: 'v', help: 'Verbose output', defaultsTo: false);
+  var argResults = parser.parse(args);
+
+  if (argResults['verbose']) {
+    Logger.root.level = Level.ALL;
+  } else {
+    Logger.root.level = Level.INFO;
+  }
+
+  Logger.root.onRecord.listen((record) {
+    print('${record.level.name}: ${record.message}');
+  });
+
+  if (argResults['help'] || argResults.rest.length != 2) {
+    print('Merges two or more timeline summaries files.\n'
+        '\n'
+        'Usage:\n'
+        '\tbenchcompare baseline.benchmark improved.benchmark\n'
+        '\n');
+    print(parser.usage);
+    return 2;
+  }
+
+  final List<TimelineSummary> summaries = [];
+  for (final filename in argResults.rest) {
+    log.info('Extracting $filename');
+    final label = path.basenameWithoutExtension(filename);
+
+    String data;
+    DateTime lastModified;
+    try {
+      final file = File(filename);
+      data = await file.readAsString();
+      log.fine('Finished reading $file');
+      lastModified = (await file.lastModified()).toUtc();
+      log.finer('Finished getting last modified: $lastModified');
+    } on FileSystemException catch (e) {
+      stderr.writeln('ERROR: Could not read $filename');
+      stderr.writeln('$e');
+      return 1;
+    }
+
+    log.fine('Starting extraction');
+    try {
+      summaries.add(TimelineSummary.fromFileContent(label, lastModified, data));
+    } on FormatException catch (e) {
+      stderr.writeln('ERROR: Problem parsing $filename');
+      stderr.writeln('$e');
+      return 1;
+    }
+    log.finer('Finished extraction');
+  }
+
+  final mergedSummaryName = "${summaries.first.label}_merged";
+  final mergedSummary = TimelineSummary(
+    label: mergedSummaryName,
+    buildTime: FrameStats(
+      averageFrameTimeMs: Statistic.from(summaries.map((e) => e.buildTime.averageFrameTimeMs).toList()).mean.toDouble(),
+      percentile90FrameTimeMs:
+          Statistic.from(summaries.map((e) => e.buildTime.percentile90FrameTimeMs).toList()).mean.toDouble(),
+      percentile99FrameTimeMs:
+          Statistic.from(summaries.map((e) => e.buildTime.percentile99FrameTimeMs).toList()).mean.toDouble(),
+      worstFrameTimeMs: Statistic.from(summaries.map((e) => e.buildTime.worstFrameTimeMs).toList()).mean.toDouble(),
+    ),
+    rasterizerTime: FrameStats(
+      averageFrameTimeMs:
+          Statistic.from(summaries.map((e) => e.rasterizerTime.averageFrameTimeMs).toList()).mean.toDouble(),
+      percentile90FrameTimeMs:
+          Statistic.from(summaries.map((e) => e.rasterizerTime.percentile90FrameTimeMs).toList()).mean.toDouble(),
+      percentile99FrameTimeMs:
+          Statistic.from(summaries.map((e) => e.rasterizerTime.percentile99FrameTimeMs).toList()).mean.toDouble(),
+      worstFrameTimeMs:
+          Statistic.from(summaries.map((e) => e.rasterizerTime.worstFrameTimeMs).toList()).mean.toDouble(),
+    ),
+  );
+
+  final mergedSummaryFile = path.setExtension(mergedSummaryName, '.json');
+  try {
+    final file = File(mergedSummaryFile);
+    log.fine('Writing to $mergedSummaryFile');
+    await file.writeAsString(json.encode(mergedSummary.toJson()));
+    log.fine('Finished writing');
+  } on FileSystemException catch (e) {
+    stderr.writeln('ERROR: Could not write $mergedSummaryName');
+    stderr.writeln('$e');
+    return 1;
+  }
+
+  log.info('File ${path.basename(mergedSummaryFile)} written.');
+
+  return 0;
+}
+
+Logger log = Logger('benchextract');

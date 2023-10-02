@@ -1,0 +1,15 @@
+{
+    "label": "toggle_iso_picker_baseline_2023-10-02T13-33-18.946216.timeline_summary_merged",
+    "buildTime": {
+        "averageFrameTimeMs": 13.100399999999999,
+        "percentile90FrameTimeMs": 27.9015,
+        "percentile99FrameTimeMs": 27.9015,
+        "worstFrameTimeMs": 27.9015
+    },
+    "rasterizerTime": {
+        "averageFrameTimeMs": 29.152750000000005,
+        "percentile90FrameTimeMs": 48.5835,
+        "percentile99FrameTimeMs": 48.5835,
+        "worstFrameTimeMs": 48.5835
+    }
+}
