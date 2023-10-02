@@ -1,15 +1,18 @@
 name: timeline_compare
-description: A sample command-line application.
-version: 1.0.0
+description: A tool to extract data from multiple Flutter `Timeline` and `TimelineSummary` files.
+version: 0.1.0
 # repository: https://github.com/my_org/my_repo
 
 environment:
   sdk: ^3.0.0
 
+executables:
+  merge_timeline_summaries:
+  merge_timelines:
+
 dependencies:
   args: ^2.1.1
   logging: ^1.0.1
-  lzma: ^1.0.1
   path: ^1.8.0
   t_stats: ^3.0.0
 
