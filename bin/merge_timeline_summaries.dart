@@ -70,7 +70,7 @@ Future<int> main(
   final mergedSummary = TimelineSummary(
     label: mergedSummaryName,
     buildTime: summaries.map((e) => e.buildTime).toList().mean(),
-    rasterizerTime: summaries.map((e) => e.buildTime).toList().mean(),
+    rasterizerTime: summaries.map((e) => e.rasterizerTime).toList().mean(),
   );
 
   final mergedSummaryFile = path.setExtension(mergedSummaryName, '.json');

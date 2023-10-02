@@ -67,7 +67,7 @@ Future<int> main(
     log.finer('Finished extraction');
   }
 
-  final mergedTimelineName = "${timelines.first.label}_merged";
+  final mergedTimelineName = "${timelines.first.label.split('.').first}_merged";
   final mergedTimeline = TimelineStats(
     label: mergedTimelineName,
     timeExtentMicros: Statistic.from(timelines.map((e) => e.timeExtentMicros)).mean.toInt(),
