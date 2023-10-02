@@ -24,7 +24,6 @@ class TimelineSummary {
 
   Map<String, dynamic> toJson() {
     return {
-      "label": label,
       "buildTime": buildTime.toJson(),
       "rasterizerTime": rasterizerTime.toJson(),
     };
