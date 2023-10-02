@@ -90,4 +90,4 @@ Future<int> main(
   return 0;
 }
 
-Logger log = Logger('benchextract');
+Logger log = Logger('merge_timelines');
