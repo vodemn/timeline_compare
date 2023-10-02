@@ -23,7 +23,7 @@ Future<int> main(List<String> args) async {
     print('${record.level.name}: ${record.message}');
   });
 
-  if (argResults['help'] || argResults.rest.length != 2) {
+  if (argResults['help'] || argResults.rest.length < 2) {
     print('Merges two or more timeline summaries files.\n'
         '\n'
         'Usage:\n'
