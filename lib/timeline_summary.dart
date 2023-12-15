@@ -35,12 +35,14 @@ class FrameStats {
   final double percentile90FrameTimeMs;
   final double percentile99FrameTimeMs;
   final double worstFrameTimeMs;
+  final double summaryFrameTimeMs;
 
   const FrameStats({
     required this.averageFrameTimeMs,
     required this.percentile90FrameTimeMs,
     required this.percentile99FrameTimeMs,
     required this.worstFrameTimeMs,
+    required this.summaryFrameTimeMs,
   });
 
   factory FrameStats.fromJson(FrameStatType type, Map<String, dynamic> data) {
@@ -49,6 +51,7 @@ class FrameStats {
       percentile90FrameTimeMs: data["90th_percentile_frame_${type.name}_time_millis"],
       percentile99FrameTimeMs: data["90th_percentile_frame_${type.name}_time_millis"],
       worstFrameTimeMs: data["worst_frame_${type.name}_time_millis"],
+      summaryFrameTimeMs: (data["frame_${type.name}_times"] as List).cast<int>().reduce((s, t) => s += t) / 1000,
     );
   }
 
@@ -58,6 +61,7 @@ class FrameStats {
       "percentile90FrameTimeMs": percentile90FrameTimeMs,
       "percentile99FrameTimeMs": percentile99FrameTimeMs,
       "worstFrameTimeMs": worstFrameTimeMs,
+      "summaryFrameTimeMs": summaryFrameTimeMs,
     };
   }
 }
@@ -71,6 +75,7 @@ extension FrameStatsStatistics on List<FrameStats> {
       percentile90FrameTimeMs: Statistic.from(map((e) => e.percentile90FrameTimeMs).toList()).mean.toDouble(),
       percentile99FrameTimeMs: Statistic.from(map((e) => e.percentile99FrameTimeMs).toList()).mean.toDouble(),
       worstFrameTimeMs: Statistic.from(map((e) => e.worstFrameTimeMs).toList()).mean.toDouble(),
+      summaryFrameTimeMs: Statistic.from(map((e) => e.summaryFrameTimeMs).toList()).mean.toDouble(),
     );
   }
 }
