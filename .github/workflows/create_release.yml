@@ -3,7 +3,6 @@
 # separate terms of service, privacy policy, and support
 # documentation.
 
-
 # This workflow uses perl regex. For better syntaxis understading see these docs:
 # https://perldoc.perl.org/perlrequick#Search-and-replace
 # https://perldoc.perl.org/perlre#Other-Modifiers
@@ -25,32 +24,6 @@ on:
         type: string
 
 jobs:
-  build:
-    name: Build .apk & .aab
-    runs-on: macos-11
-    timeout-minutes: 30
-    steps:
-      - uses: actions/checkout@v3
-        with:
-          submodules: recursive
-
-      # This step makes sense when Github release is enabled because this release increments the build number.
-      # Therefore here we have to increment it as well to build an apk with the same build number.
-      - name: Increment build number & replace version number
-        run: bash ./.github/scripts/increment_build_number.sh ${{ github.event.inputs.version }}
-
-      - name: Install Flutter
-        uses: subosito/flutter-action@v2
-        with:
-          channel: "stable"
-          flutter-version: '3.10.0'
-
-      - name: Prepare flutter project
-        run: |
-          flutter --version
-          flutter pub get
-          flutter pub run intl_utils:generate
-
   generate-release-notes:
     name: Generate release notes
     runs-on: ubuntu-latest
@@ -68,15 +41,22 @@ jobs:
 
   update-version-in-repo:
     name: Update repo version
-    needs: [build]
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
         with:
           submodules: recursive
 
+      - name: Read gist
+        id: gist_content
+        uses: gorgbus/gist-actions@main
+        with:
+          action: "get"
+          gist_id: "7e34e957c254d74a38a2efc8355db0d5"
+          file_name: "update_pubspec_version.sh"
+
       - name: Increment build number & replace version number
-        run: bash ./.github/scripts/increment_build_number.sh ${{ github.event.inputs.version }}
+        run: bash ${{ steps.gist_content.outputs.content }} ${{ github.event.inputs.version }}
 
       - name: Download release notes
         uses: actions/download-artifact@v3
@@ -85,7 +65,6 @@ jobs:
 
       - name: Update CHANGELOG
         run: echo -e "## ${{ github.event.inputs.version }}\n\n$(cat whatsnew-en-US.md)\n\n$(cat CHANGELOG.md)" > CHANGELOG.md
-
 
       - name: Commit changes
         run: |
@@ -103,7 +82,7 @@ jobs:
 
   create-github-release:
     name: Create Github release
-    needs: [build, generate-release-notes, update-version-in-repo]
+    needs: [generate-release-notes, update-version-in-repo]
     runs-on: ubuntu-latest
     permissions:
       contents: write
