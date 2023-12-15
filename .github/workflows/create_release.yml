@@ -50,6 +50,8 @@ jobs:
       - name: Read gist
         id: gist_content
         uses: gorgbus/gist-actions@main
+        env:
+          GITHUB_TOKEN: ${{ secrets.TOKEN }}
         with:
           action: "get"
           gist_id: "7e34e957c254d74a38a2efc8355db0d5"
