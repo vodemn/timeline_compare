@@ -1,7 +1,3 @@
-## 0.1.0
-
 - Extract average, worst and 90/99 percentile frame times from a timeline summary
 - Extract time extent from a timeline
 - Merge data extracted from several timelines
-
-
