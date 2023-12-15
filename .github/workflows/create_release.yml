@@ -47,18 +47,8 @@ jobs:
         with:
           submodules: recursive
 
-      - name: Read gist
-        id: gist_content
-        uses: gorgbus/gist-actions@main
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          action: "get"
-          gist_id: "7e34e957c254d74a38a2efc8355db0d5"
-          file_name: "update_pubspec_version.sh"
-
       - name: Increment build number & replace version number
-        run: bash ${{ steps.gist_content.outputs.content }} ${{ github.event.inputs.version }}
+        run: bash ./.github/scripts/increment_build_number.sh ${{ github.event.inputs.version }}
 
       - name: Download release notes
         uses: actions/download-artifact@v3
